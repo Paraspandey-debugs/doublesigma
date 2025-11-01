@@ -1,21 +1,21 @@
 const { ethers } = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Get the deployer account
+  const [deployer] = await ethers.getSigners();
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  const lockedAmount = ethers.parseEther("0.001");
+  // For demo, use deployer as government admin
+  const governmentAdmin = deployer.address;
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  const LandRegistry = await ethers.getContractFactory("LandRegistryPrivate");
+  const landRegistry = await LandRegistry.deploy(governmentAdmin);
 
-  await lock.waitForDeployment();
+  await landRegistry.waitForDeployment();
 
   console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+    "LandRegistryPrivate deployed to:",
+    await landRegistry.getAddress()
   );
 }
 
